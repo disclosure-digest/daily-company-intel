@@ -1,0 +1,8 @@
+{
+  "name": "発表決算一覧",
+  "short_name": "発表決算",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f5f1",
+  "theme_color": "#176b5b"
+}
