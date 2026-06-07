@@ -2,6 +2,11 @@ name: Daily company earnings update
 
 on:
   workflow_dispatch:
+    inputs:
+      historical_start:
+        description: "Optional historical backfill start date, e.g. 2025-04-01"
+        required: false
+        type: string
   schedule:
     # 05:00 JST
     - cron: "0 20 * * *"
@@ -42,12 +47,20 @@ jobs:
         run: |
           TARGET_DATE=$(TZ=Asia/Tokyo date -d "yesterday" +%F)
           node tools/fetch-tdnet-earnings.mjs "$TARGET_DATE"
+          if [ -n "${{ github.event.inputs.historical_start }}" ]; then
+            node tools/backfill-tdnet-earnings.mjs "${{ github.event.inputs.historical_start }}" "$TARGET_DATE"
+            node tools/backfill-edinet-filings.mjs "${{ github.event.inputs.historical_start }}" "$TARGET_DATE"
+          else
+            node tools/backfill-tdnet-earnings.mjs 45 "$TARGET_DATE"
+            node tools/backfill-edinet-filings.mjs 45 "$TARGET_DATE"
+          fi
+          node tools/build-coverage-index.mjs
 
       - name: Commit generated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/latest.json data/by-date data/company-metadata.json
+          git add data/latest.json data/by-date data/edinet data/company-metadata.json data/coverage.json
           git diff --cached --quiet || git commit -m "Update daily earnings data"
           git push
 
@@ -58,4 +71,3 @@ jobs:
           path: "."
 
       - uses: actions/deploy-pages@v4
-
