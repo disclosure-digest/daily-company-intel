@@ -1,8 +1,8 @@
 {
-  "name": "発表決算一覧",
-  "short_name": "発表決算",
+  "name": "決算ダイジェスト",
+  "short_name": "決算Digest",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4f5f1",
-  "theme_color": "#176b5b"
+  "background_color": "#05070a",
+  "theme_color": "#05070a"
 }

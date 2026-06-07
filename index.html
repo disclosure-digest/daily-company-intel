@@ -2,12 +2,12 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>会社別インテリジェンス</title>
-    <meta name="theme-color" content="#176b5b">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>決算ダイジェスト</title>
+    <meta name="theme-color" content="#05070a">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="発表決算">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="決算ダイジェスト">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="stylesheet" href="./styles.css">
   </head>
@@ -15,8 +15,8 @@
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <p class="eyebrow">Daily Company Intelligence</p>
-          <h1>発表決算一覧</h1>
+          <p class="eyebrow">TDnet Earnings</p>
+          <h1>決算ダイジェスト</h1>
           <p id="meta" class="meta">読み込み中...</p>
         </div>
 
@@ -29,20 +29,46 @@
             <button id="todayButton" type="button">最新</button>
             <button id="clearDateButton" type="button">全期間</button>
           </div>
-          <p id="dateStatus" class="meta">日付を選ぶと、その日にTDnetで開示された決算情報を取得します。</p>
+          <label class="check-row range-toggle">
+            <input id="rangeToggle" type="checkbox">
+            <span>期間指定</span>
+          </label>
+          <div id="rangeControls" class="range-controls" hidden>
+            <label>
+              <span>開始日</span>
+              <input id="rangeStartInput" type="date">
+            </label>
+            <label>
+              <span>終了日</span>
+              <input id="rangeEndInput" type="date">
+            </label>
+          </div>
+          <p id="dateStatus" class="meta">日付を選ぶと、その日にTDnetで開示された決算情報を表示します。</p>
+          <div id="calendarGrid" class="calendar-grid" aria-label="取得済みカレンダー"></div>
         </section>
 
         <section class="control-panel" aria-label="表示条件">
+          <button id="filterToggleButton" class="filter-toggle" type="button">詳細条件を開く</button>
           <label>
             <span>並び順</span>
             <select id="sortSelect">
               <option value="impact-desc">市場インパクトが大きい順</option>
-              <option value="marketcap-desc">実時価総額が大きい順</option>
-              <option value="marketcap-asc">実時価総額が小さい順</option>
               <option value="time-desc">開示時刻が新しい順</option>
               <option value="time-asc">開示時刻が古い順</option>
               <option value="code-asc">証券コード順</option>
               <option value="company-asc">会社名順</option>
+            </select>
+          </label>
+
+          <label>
+            <span>資料種別</span>
+            <select id="documentKindFilter">
+              <option value="all">すべての資料</option>
+              <option value="summary">決算短信</option>
+              <option value="presentation">決算説明資料</option>
+              <option value="supplement">補足資料</option>
+              <option value="materials">決算資料</option>
+              <option value="other">その他</option>
             </select>
           </label>
 
@@ -75,18 +101,14 @@
             <span>業種ごとにまとめる</span>
           </label>
         </section>
-
-        <section class="sidebar-note">
-          <h2>データの考え方</h2>
-          <p>決算開示はTDnetの開示日を基準にします。業種は東証17業種、インパクトは時価総額または代理変数で並べます。</p>
-        </section>
       </aside>
 
       <main class="detail">
         <section class="toolbar">
           <div>
-            <p class="eyebrow">Morning Brief</p>
-            <h2 id="pageTitle">発表決算一覧</h2>
+            <p class="eyebrow">Earnings Digest</p>
+            <h2>決算ダイジェスト</h2>
+            <p id="pageTitle" class="page-subtitle">読み込み中...</p>
           </div>
           <button id="refreshButton" type="button">更新</button>
         </section>

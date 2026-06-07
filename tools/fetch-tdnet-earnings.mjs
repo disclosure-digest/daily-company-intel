@@ -165,7 +165,8 @@ function toAppData(date, totalDisclosures, disclosures, metadata) {
     if (!companies.has(disclosure.code)) {
       companies.set(disclosure.code, {
         ticker: disclosure.code,
-        name: disclosure.companyName,
+        name: companyMetadata.name ?? disclosure.companyName,
+        tdnetName: disclosure.companyName,
         market: companyMetadata.market ?? disclosure.market,
         industry: industry17,
         industry17,
@@ -187,15 +188,16 @@ function toAppData(date, totalDisclosures, disclosures, metadata) {
     }
 
     const importance = estimateImportance(disclosure, impact.score);
+    const documentKind = documentKindForTitle(disclosure.title);
     const documents = [
-      { label: documentLabel(disclosure.title), url: disclosure.pdfUrl }
+      { label: documentKind.label, url: disclosure.pdfUrl }
     ];
-    if (disclosure.xbrlUrl) documents.push({ label: "XBRL", url: disclosure.xbrlUrl });
-
     companies.get(disclosure.code).items.push({
       date,
       time: disclosure.time,
       type: "earnings",
+      documentKind: documentKind.value,
+      documentKindLabel: documentKind.label,
       importance,
       title: disclosure.title,
       summary: `${disclosure.time} TDnet開示。原文リンクから決算短信・決算資料を確認できます。`,
@@ -253,15 +255,20 @@ function materialityBonus(title) {
 function estimateImportance(disclosure, impactScore) {
   const material = materialityBonus(disclosure.title);
   if (impactScore >= 650 || material >= 120) return "high";
-  if (impactScore >= 300 || material >= 50 || disclosure.xbrlUrl) return "medium";
+  if (impactScore >= 300 || material >= 50) return "medium";
   return "low";
 }
 
 function documentLabel(title) {
-  if (title.includes("決算説明")) return "決算説明資料";
-  if (title.includes("補足")) return "補足資料";
-  if (title.includes("決算資料")) return "決算資料";
-  return "決算短信";
+  return documentKindForTitle(title).label;
+}
+
+function documentKindForTitle(title) {
+  if (/決算短信|Financial Results/i.test(title)) return { value: "summary", label: "決算短信" };
+  if (/決算説明/.test(title)) return { value: "presentation", label: "決算説明資料" };
+  if (/補足|Supplementary/i.test(title)) return { value: "supplement", label: "補足資料" };
+  if (/決算資料/.test(title)) return { value: "materials", label: "決算資料" };
+  return { value: "other", label: "その他決算資料" };
 }
 
 function absoluteUrl(href) {
